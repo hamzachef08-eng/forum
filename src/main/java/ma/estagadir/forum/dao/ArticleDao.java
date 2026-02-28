@@ -147,36 +147,70 @@ public class ArticleDao {
                 return;
             }
             try (Connection conn = DbUtil.getConnection(); Statement stmt = conn.createStatement()) {
-                stmt.executeUpdate(
-                        "CREATE TABLE IF NOT EXISTS articles ("
-                                + "id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,"
-                                + "author_id BIGINT UNSIGNED NOT NULL,"
-                                + "title VARCHAR(180) NOT NULL,"
-                                + "content TEXT NOT NULL,"
-                                + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-                                + "PRIMARY KEY (id),"
-                                + "KEY idx_articles_author (author_id),"
-                                + "CONSTRAINT fk_articles_author FOREIGN KEY (author_id) REFERENCES users(id) "
-                                + "ON DELETE CASCADE ON UPDATE CASCADE"
-                                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+                if (isPostgreSql(conn)) {
+                    stmt.executeUpdate(
+                            "CREATE TABLE IF NOT EXISTS articles ("
+                                    + "id BIGSERIAL PRIMARY KEY,"
+                                    + "author_id BIGINT NOT NULL,"
+                                    + "title VARCHAR(180) NOT NULL,"
+                                    + "content TEXT NOT NULL,"
+                                    + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                                    + "CONSTRAINT fk_articles_author FOREIGN KEY (author_id) REFERENCES users(id) "
+                                    + "ON DELETE CASCADE ON UPDATE CASCADE"
+                                    + ")");
+                    stmt.executeUpdate("CREATE INDEX IF NOT EXISTS idx_articles_author ON articles(author_id)");
 
-                stmt.executeUpdate(
-                        "CREATE TABLE IF NOT EXISTS article_comments ("
-                                + "id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,"
-                                + "article_id BIGINT UNSIGNED NOT NULL,"
-                                + "author_id BIGINT UNSIGNED NOT NULL,"
-                                + "content TEXT NOT NULL,"
-                                + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-                                + "PRIMARY KEY (id),"
-                                + "KEY idx_ac_article (article_id),"
-                                + "KEY idx_ac_author (author_id),"
-                                + "CONSTRAINT fk_ac_article FOREIGN KEY (article_id) REFERENCES articles(id) "
-                                + "ON DELETE CASCADE ON UPDATE CASCADE,"
-                                + "CONSTRAINT fk_ac_author FOREIGN KEY (author_id) REFERENCES users(id) "
-                                + "ON DELETE CASCADE ON UPDATE CASCADE"
-                                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+                    stmt.executeUpdate(
+                            "CREATE TABLE IF NOT EXISTS article_comments ("
+                                    + "id BIGSERIAL PRIMARY KEY,"
+                                    + "article_id BIGINT NOT NULL,"
+                                    + "author_id BIGINT NOT NULL,"
+                                    + "content TEXT NOT NULL,"
+                                    + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                                    + "CONSTRAINT fk_ac_article FOREIGN KEY (article_id) REFERENCES articles(id) "
+                                    + "ON DELETE CASCADE ON UPDATE CASCADE,"
+                                    + "CONSTRAINT fk_ac_author FOREIGN KEY (author_id) REFERENCES users(id) "
+                                    + "ON DELETE CASCADE ON UPDATE CASCADE"
+                                    + ")");
+                    stmt.executeUpdate("CREATE INDEX IF NOT EXISTS idx_ac_article ON article_comments(article_id)");
+                    stmt.executeUpdate("CREATE INDEX IF NOT EXISTS idx_ac_author ON article_comments(author_id)");
+                } else {
+                    stmt.executeUpdate(
+                            "CREATE TABLE IF NOT EXISTS articles ("
+                                    + "id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,"
+                                    + "author_id BIGINT UNSIGNED NOT NULL,"
+                                    + "title VARCHAR(180) NOT NULL,"
+                                    + "content TEXT NOT NULL,"
+                                    + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                                    + "PRIMARY KEY (id),"
+                                    + "KEY idx_articles_author (author_id),"
+                                    + "CONSTRAINT fk_articles_author FOREIGN KEY (author_id) REFERENCES users(id) "
+                                    + "ON DELETE CASCADE ON UPDATE CASCADE"
+                                    + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+                    stmt.executeUpdate(
+                            "CREATE TABLE IF NOT EXISTS article_comments ("
+                                    + "id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,"
+                                    + "article_id BIGINT UNSIGNED NOT NULL,"
+                                    + "author_id BIGINT UNSIGNED NOT NULL,"
+                                    + "content TEXT NOT NULL,"
+                                    + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                                    + "PRIMARY KEY (id),"
+                                    + "KEY idx_ac_article (article_id),"
+                                    + "KEY idx_ac_author (author_id),"
+                                    + "CONSTRAINT fk_ac_article FOREIGN KEY (article_id) REFERENCES articles(id) "
+                                    + "ON DELETE CASCADE ON UPDATE CASCADE,"
+                                    + "CONSTRAINT fk_ac_author FOREIGN KEY (author_id) REFERENCES users(id) "
+                                    + "ON DELETE CASCADE ON UPDATE CASCADE"
+                                    + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+                }
             }
             blogSchemaReady = true;
         }
+    }
+
+    private static boolean isPostgreSql(Connection conn) throws SQLException {
+        String name = conn.getMetaData().getDatabaseProductName();
+        return name != null && name.toLowerCase().contains("postgres");
     }
 }

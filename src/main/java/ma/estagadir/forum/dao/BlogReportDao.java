@@ -98,29 +98,57 @@ public class BlogReportDao {
             ArticleDao.ensureBlogSchema();
             try (Connection conn = DbUtil.getConnection();
                     Statement stmt = conn.createStatement()) {
-                stmt.executeUpdate(
-                        "CREATE TABLE IF NOT EXISTS blog_reports ("
-                                + "id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,"
-                                + "article_id BIGINT UNSIGNED NOT NULL,"
-                                + "reported_user_id BIGINT UNSIGNED NOT NULL,"
-                                + "reporter_user_id BIGINT UNSIGNED NOT NULL,"
-                                + "reason VARCHAR(255) NOT NULL,"
-                                + "status ENUM('OPEN','BANNED','REJECTED') NOT NULL DEFAULT 'OPEN',"
-                                + "reviewed_by BIGINT UNSIGNED NULL,"
-                                + "reviewed_at TIMESTAMP NULL,"
-                                + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-                                + "PRIMARY KEY (id),"
-                                + "KEY idx_br_article (article_id),"
-                                + "KEY idx_br_reported (reported_user_id),"
-                                + "KEY idx_br_reporter (reporter_user_id),"
-                                + "KEY idx_br_status (status),"
-                                + "CONSTRAINT fk_br_article FOREIGN KEY (article_id) REFERENCES articles(id) ON DELETE CASCADE ON UPDATE CASCADE,"
-                                + "CONSTRAINT fk_br_reported FOREIGN KEY (reported_user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,"
-                                + "CONSTRAINT fk_br_reporter FOREIGN KEY (reporter_user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,"
-                                + "CONSTRAINT fk_br_admin FOREIGN KEY (reviewed_by) REFERENCES users(id) ON DELETE SET NULL ON UPDATE CASCADE"
-                                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+                if (isPostgreSql(conn)) {
+                    stmt.executeUpdate(
+                            "CREATE TABLE IF NOT EXISTS blog_reports ("
+                                    + "id BIGSERIAL PRIMARY KEY,"
+                                    + "article_id BIGINT NOT NULL,"
+                                    + "reported_user_id BIGINT NOT NULL,"
+                                    + "reporter_user_id BIGINT NOT NULL,"
+                                    + "reason VARCHAR(255) NOT NULL,"
+                                    + "status VARCHAR(20) NOT NULL DEFAULT 'OPEN' CHECK (status IN ('OPEN','BANNED','REJECTED')),"
+                                    + "reviewed_by BIGINT NULL,"
+                                    + "reviewed_at TIMESTAMP NULL,"
+                                    + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                                    + "CONSTRAINT fk_br_article FOREIGN KEY (article_id) REFERENCES articles(id) ON DELETE CASCADE ON UPDATE CASCADE,"
+                                    + "CONSTRAINT fk_br_reported FOREIGN KEY (reported_user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,"
+                                    + "CONSTRAINT fk_br_reporter FOREIGN KEY (reporter_user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,"
+                                    + "CONSTRAINT fk_br_admin FOREIGN KEY (reviewed_by) REFERENCES users(id) ON DELETE SET NULL ON UPDATE CASCADE"
+                                    + ")");
+                    stmt.executeUpdate("CREATE INDEX IF NOT EXISTS idx_br_article ON blog_reports(article_id)");
+                    stmt.executeUpdate("CREATE INDEX IF NOT EXISTS idx_br_reported ON blog_reports(reported_user_id)");
+                    stmt.executeUpdate("CREATE INDEX IF NOT EXISTS idx_br_reporter ON blog_reports(reporter_user_id)");
+                    stmt.executeUpdate("CREATE INDEX IF NOT EXISTS idx_br_status ON blog_reports(status)");
+                } else {
+                    stmt.executeUpdate(
+                            "CREATE TABLE IF NOT EXISTS blog_reports ("
+                                    + "id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,"
+                                    + "article_id BIGINT UNSIGNED NOT NULL,"
+                                    + "reported_user_id BIGINT UNSIGNED NOT NULL,"
+                                    + "reporter_user_id BIGINT UNSIGNED NOT NULL,"
+                                    + "reason VARCHAR(255) NOT NULL,"
+                                    + "status ENUM('OPEN','BANNED','REJECTED') NOT NULL DEFAULT 'OPEN',"
+                                    + "reviewed_by BIGINT UNSIGNED NULL,"
+                                    + "reviewed_at TIMESTAMP NULL,"
+                                    + "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                                    + "PRIMARY KEY (id),"
+                                    + "KEY idx_br_article (article_id),"
+                                    + "KEY idx_br_reported (reported_user_id),"
+                                    + "KEY idx_br_reporter (reporter_user_id),"
+                                    + "KEY idx_br_status (status),"
+                                    + "CONSTRAINT fk_br_article FOREIGN KEY (article_id) REFERENCES articles(id) ON DELETE CASCADE ON UPDATE CASCADE,"
+                                    + "CONSTRAINT fk_br_reported FOREIGN KEY (reported_user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,"
+                                    + "CONSTRAINT fk_br_reporter FOREIGN KEY (reporter_user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,"
+                                    + "CONSTRAINT fk_br_admin FOREIGN KEY (reviewed_by) REFERENCES users(id) ON DELETE SET NULL ON UPDATE CASCADE"
+                                    + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+                }
             }
             blogReportSchemaReady = true;
         }
+    }
+
+    private boolean isPostgreSql(Connection conn) throws SQLException {
+        String name = conn.getMetaData().getDatabaseProductName();
+        return name != null && name.toLowerCase().contains("postgres");
     }
 }

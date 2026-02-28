@@ -17,14 +17,14 @@ public final class MailUtil {
 
     public static void sendResetCode(ServletContext ctx, String toEmail, String code) throws MessagingException {
         Session session = buildSession(ctx);
-        String from = ctx.getInitParameter("mail.from");
+        String from = getConfig(ctx, "MAIL_FROM", "mail.from");
         sendTextMail(session, from, toEmail, "EST Agadir - Password Reset Code",
                 "Your verification code is: " + code + "\nThis code expires in 10 minutes.\nResend allowed every 60 seconds.");
     }
 
     public static void sendVerificationEmail(ServletContext ctx, String toEmail, String verifyLink) throws MessagingException {
         Session session = buildSession(ctx);
-        String from = ctx.getInitParameter("mail.from");
+        String from = getConfig(ctx, "MAIL_FROM", "mail.from");
         String text = "Bienvenue sur EST Agadir Forum.\n\n"
                 + "Cliquez pour verifier votre compte:\n" + verifyLink + "\n\n"
                 + "Ce lien expire dans 24 heures.";
@@ -32,12 +32,13 @@ public final class MailUtil {
     }
 
     private static Session buildSession(ServletContext ctx) throws MessagingException {
-        String host = ctx.getInitParameter("mail.smtp.host");
-        String port = ctx.getInitParameter("mail.smtp.port");
-        String username = ctx.getInitParameter("mail.smtp.username");
-        String password = ctx.getInitParameter("mail.smtp.password");
+        String host = getConfig(ctx, "MAIL_SMTP_HOST", "mail.smtp.host");
+        String port = getConfig(ctx, "MAIL_SMTP_PORT", "mail.smtp.port");
+        String username = getConfig(ctx, "MAIL_SMTP_USERNAME", "mail.smtp.username");
+        String password = getConfig(ctx, "MAIL_SMTP_PASSWORD", "mail.smtp.password");
+        String from = getConfig(ctx, "MAIL_FROM", "mail.from");
 
-        if (isBlank(host) || isBlank(port) || isBlank(username) || isBlank(password) || isBlank(ctx.getInitParameter("mail.from"))) {
+        if (isBlank(host) || isBlank(port) || isBlank(username) || isBlank(password) || isBlank(from)) {
             throw new MessagingException("Mail SMTP is not configured in web.xml context params.");
         }
 
@@ -68,5 +69,13 @@ public final class MailUtil {
 
     private static boolean isBlank(String s) {
         return s == null || s.trim().isEmpty();
+    }
+
+    private static String getConfig(ServletContext ctx, String envName, String paramName) {
+        String envValue = System.getenv(envName);
+        if (!isBlank(envValue)) {
+            return envValue;
+        }
+        return ctx.getInitParameter(paramName);
     }
 }
