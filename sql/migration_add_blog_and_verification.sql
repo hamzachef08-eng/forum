@@ -1,0 +1,44 @@
+﻿USE est_forum;
+
+ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verified TINYINT(1) NOT NULL DEFAULT 0 AFTER is_banned;
+UPDATE users SET email_verified = 1 WHERE email_verified IS NULL OR email_verified = 0;
+
+CREATE TABLE IF NOT EXISTS email_verification_tokens (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  user_id BIGINT UNSIGNED NOT NULL,
+  token_hash VARCHAR(255) NOT NULL,
+  expires_at DATETIME NOT NULL,
+  used_at DATETIME NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_evt_user (user_id),
+  CONSTRAINT fk_evt_user FOREIGN KEY (user_id) REFERENCES users(id)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS articles (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  author_id BIGINT UNSIGNED NOT NULL,
+  title VARCHAR(180) NOT NULL,
+  content TEXT NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_articles_author (author_id),
+  CONSTRAINT fk_articles_author FOREIGN KEY (author_id) REFERENCES users(id)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS article_comments (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  article_id BIGINT UNSIGNED NOT NULL,
+  author_id BIGINT UNSIGNED NOT NULL,
+  content TEXT NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_ac_article (article_id),
+  KEY idx_ac_author (author_id),
+  CONSTRAINT fk_ac_article FOREIGN KEY (article_id) REFERENCES articles(id)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_ac_author FOREIGN KEY (author_id) REFERENCES users(id)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

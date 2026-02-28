@@ -1,0 +1,269 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+         version="5.0">
+    <display-name>EST Agadir Student Platform</display-name>
+
+    <context-param>
+        <param-name>db.url</param-name>
+        <param-value>jdbc:mysql://localhost:3306/est_forum?useSSL=false&amp;serverTimezone=UTC</param-value>
+    </context-param>
+    <context-param>
+        <param-name>db.user</param-name>
+        <param-value>root</param-value>
+    </context-param>
+    <context-param>
+        <param-name>db.password</param-name>
+        <param-value></param-value>
+    </context-param>
+    <context-param>
+        <param-name>db.driver</param-name>
+        <param-value>com.mysql.cj.jdbc.Driver</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>mail.smtp.host</param-name>
+        <param-value>smtp.gmail.com</param-value>
+    </context-param>
+    <context-param>
+        <param-name>mail.smtp.port</param-name>
+        <param-value>587</param-value>
+    </context-param>
+    <context-param>
+        <param-name>mail.smtp.username</param-name>
+        <param-value>forum.esta33@gmail.com</param-value>
+    </context-param>
+    <context-param>
+        <param-name>mail.smtp.password</param-name>
+        <param-value>CHANGE_ME</param-value>
+    </context-param>
+    <context-param>
+        <param-name>mail.from</param-name>
+        <param-value>forum.esta33@gmail.com</param-value>
+    </context-param>
+
+    <listener>
+        <listener-class>ma.estagadir.forum.web.AppContextListener</listener-class>
+    </listener>
+
+    <filter>
+        <filter-name>AuthFilter</filter-name>
+        <filter-class>ma.estagadir.forum.web.AuthFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>AuthFilter</filter-name>
+        <url-pattern>/dashboard</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>AuthFilter</filter-name>
+        <url-pattern>/student/semester</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>AuthFilter</filter-name>
+        <url-pattern>/module/chat</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>AuthFilter</filter-name>
+        <url-pattern>/module/message</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>AuthFilter</filter-name>
+        <url-pattern>/module/report</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>AuthFilter</filter-name>
+        <url-pattern>/account</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>AuthFilter</filter-name>
+        <url-pattern>/admin/reports</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>AuthFilter</filter-name>
+        <url-pattern>/admin/banned</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>AuthFilter</filter-name>
+        <url-pattern>/blog</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>AuthFilter</filter-name>
+        <url-pattern>/article</url-pattern>
+    </filter-mapping>
+
+    <servlet>
+        <servlet-name>AuthServlet</servlet-name>
+        <servlet-class>ma.estagadir.forum.web.AuthServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AuthServlet</servlet-name>
+        <url-pattern>/login</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ForgotPasswordServlet</servlet-name>
+        <servlet-class>ma.estagadir.forum.web.ForgotPasswordServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ForgotPasswordServlet</servlet-name>
+        <url-pattern>/forgot-password</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ResetPasswordServlet</servlet-name>
+        <servlet-class>ma.estagadir.forum.web.ResetPasswordServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ResetPasswordServlet</servlet-name>
+        <url-pattern>/reset-password</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>VerifyResetCodeServlet</servlet-name>
+        <servlet-class>ma.estagadir.forum.web.VerifyResetCodeServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>VerifyResetCodeServlet</servlet-name>
+        <url-pattern>/reset-password/verify-code</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>RegisterServlet</servlet-name>
+        <servlet-class>ma.estagadir.forum.web.RegisterServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>RegisterServlet</servlet-name>
+        <url-pattern>/register</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>VerifyEmailServlet</servlet-name>
+        <servlet-class>ma.estagadir.forum.web.VerifyEmailServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>VerifyEmailServlet</servlet-name>
+        <url-pattern>/verify-email</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>LanguageServlet</servlet-name>
+        <servlet-class>ma.estagadir.forum.web.LanguageServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LanguageServlet</servlet-name>
+        <url-pattern>/lang</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>LogoutServlet</servlet-name>
+        <servlet-class>ma.estagadir.forum.web.LogoutServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LogoutServlet</servlet-name>
+        <url-pattern>/logout</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>DashboardServlet</servlet-name>
+        <servlet-class>ma.estagadir.forum.web.DashboardServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DashboardServlet</servlet-name>
+        <url-pattern>/dashboard</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>AccountServlet</servlet-name>
+        <servlet-class>ma.estagadir.forum.web.AccountServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AccountServlet</servlet-name>
+        <url-pattern>/account</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>StudentSemesterServlet</servlet-name>
+        <servlet-class>ma.estagadir.forum.web.StudentSemesterServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>StudentSemesterServlet</servlet-name>
+        <url-pattern>/student/semester</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ModuleOptionsServlet</servlet-name>
+        <servlet-class>ma.estagadir.forum.web.ModuleOptionsServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ModuleOptionsServlet</servlet-name>
+        <url-pattern>/modules/options</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ModuleChatServlet</servlet-name>
+        <servlet-class>ma.estagadir.forum.web.ModuleChatServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ModuleChatServlet</servlet-name>
+        <url-pattern>/module/chat</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ModuleMessageServlet</servlet-name>
+        <servlet-class>ma.estagadir.forum.web.ModuleMessageServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ModuleMessageServlet</servlet-name>
+        <url-pattern>/module/message</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>MessageReportServlet</servlet-name>
+        <servlet-class>ma.estagadir.forum.web.MessageReportServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>MessageReportServlet</servlet-name>
+        <url-pattern>/module/report</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>AdminReportsServlet</servlet-name>
+        <servlet-class>ma.estagadir.forum.web.AdminReportsServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AdminReportsServlet</servlet-name>
+        <url-pattern>/admin/reports</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>AdminBannedUsersServlet</servlet-name>
+        <servlet-class>ma.estagadir.forum.web.AdminBannedUsersServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AdminBannedUsersServlet</servlet-name>
+        <url-pattern>/admin/banned</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>BlogServlet</servlet-name>
+        <servlet-class>ma.estagadir.forum.web.BlogServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>BlogServlet</servlet-name>
+        <url-pattern>/blog</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ArticleServlet</servlet-name>
+        <servlet-class>ma.estagadir.forum.web.ArticleServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ArticleServlet</servlet-name>
+        <url-pattern>/article</url-pattern>
+    </servlet-mapping>
+
+    <welcome-file-list>
+        <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+</web-app>
