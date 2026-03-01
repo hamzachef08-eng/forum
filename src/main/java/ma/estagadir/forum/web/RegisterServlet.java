@@ -1,6 +1,8 @@
 package ma.estagadir.forum.web;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 import jakarta.mail.MessagingException;
@@ -71,7 +73,8 @@ public class RegisterServlet extends HttpServlet {
             }
             try {
                 VerifyEmailServlet.createAndSendVerification(req, userId, user.getEmail());
-                resp.sendRedirect(req.getContextPath() + "/login?registered=1");
+                String encoded = URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8);
+                resp.sendRedirect(req.getContextPath() + "/verify-email?email=" + encoded + "&sent=1");
             } catch (MessagingException ex) {
                 req.setAttribute("error", I18n.t(req, "err.verify_not_sent"));
                 refillLists(req);

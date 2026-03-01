@@ -930,6 +930,105 @@ button {
   transform: translateY(0);
 }
 
+.home-bg {
+  background:
+    radial-gradient(36rem 26rem at 16% 20%, rgba(255, 163, 128, 0.22) 0%, transparent 65%),
+    radial-gradient(36rem 24rem at 88% 82%, rgba(120, 181, 255, 0.22) 0%, transparent 62%),
+    linear-gradient(165deg, #eef3ff, #f7fbff);
+}
+
+.home-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 16px;
+}
+
+.home-card {
+  width: min(980px, 100%);
+  border: 1px solid #cfdbef;
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 32px 60px rgba(39, 82, 150, 0.2);
+  padding: 30px 32px 34px;
+}
+
+.home-top {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 6px;
+}
+
+.home-title {
+  font-size: clamp(40px, 7vw, 78px);
+  line-height: 0.96;
+  max-width: 620px;
+  margin-bottom: 14px;
+  color: #1a2132;
+}
+
+.home-subtitle {
+  font-size: 21px;
+  line-height: 1.55;
+  color: #4f5f7f;
+  max-width: 760px;
+  margin-bottom: 20px;
+}
+
+.home-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+}
+
+.home-feature {
+  border: 1px solid #d5e2f7;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #fbfdff, #f0f5ff);
+  padding: 14px 14px 12px;
+}
+
+.home-feature h3 {
+  margin-bottom: 8px;
+  font-size: 19px;
+  color: #1f2b43;
+}
+
+.home-feature p {
+  margin: 0;
+  color: #5c6f90;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.home-pill {
+  display: inline-block;
+  margin-bottom: 10px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  color: #b85d38;
+  background: #ffe7de;
+}
+
+.home-actions {
+  margin-top: 18px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.home-btn-primary {
+  min-width: 132px;
+}
+
+.home-btn-secondary {
+  min-width: 166px;
+}
+
 .ghosted-surface {
   border-style: dashed;
   border-color: #c9cedb;
@@ -1185,6 +1284,30 @@ button {
   .admin-actions {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .home-card {
+    border-radius: 22px;
+    padding: 22px 18px 22px;
+  }
+
+  .home-title {
+    font-size: clamp(34px, 11vw, 52px);
+  }
+
+  .home-subtitle {
+    font-size: 17px;
+  }
+
+  .home-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .home-btn-primary,
+  .home-btn-secondary {
+    width: 100%;
+    min-width: 0;
   }
 }
 

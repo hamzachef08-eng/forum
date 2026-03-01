@@ -31,6 +31,16 @@ public final class MailUtil {
         sendTextMail(session, from, toEmail, "EST Agadir - Verification de compte", text);
     }
 
+    public static void sendVerificationCode(ServletContext ctx, String toEmail, String code) throws MessagingException {
+        Session session = buildSession(ctx);
+        String from = getConfig(ctx, "MAIL_FROM", "mail.from");
+        String text = "Bienvenue sur EST Agadir Forum.\n\n"
+                + "Votre code de verification est: " + code + "\n"
+                + "Ce code expire dans 10 minutes.\n"
+                + "Vous pouvez renvoyer le code apres 60 secondes.";
+        sendTextMail(session, from, toEmail, "EST Agadir - Code de verification", text);
+    }
+
     private static Session buildSession(ServletContext ctx) throws MessagingException {
         String host = getConfig(ctx, "MAIL_SMTP_HOST", "mail.smtp.host");
         String port = getConfig(ctx, "MAIL_SMTP_PORT", "mail.smtp.port");
