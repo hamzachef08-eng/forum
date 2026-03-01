@@ -1,4 +1,4 @@
-﻿package ma.estagadir.forum.web;
+package ma.estagadir.forum.web;
 
 import java.io.IOException;
 

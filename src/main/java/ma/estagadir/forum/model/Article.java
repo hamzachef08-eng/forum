@@ -1,4 +1,4 @@
-﻿package ma.estagadir.forum.model;
+package ma.estagadir.forum.model;
 
 import java.time.LocalDateTime;
 

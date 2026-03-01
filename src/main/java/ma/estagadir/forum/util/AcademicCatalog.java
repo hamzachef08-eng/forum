@@ -1,4 +1,4 @@
-﻿package ma.estagadir.forum.util;
+package ma.estagadir.forum.util;
 
 import java.util.Arrays;
 import java.util.Collections;

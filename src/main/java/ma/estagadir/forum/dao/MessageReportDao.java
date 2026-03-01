@@ -1,4 +1,4 @@
-﻿package ma.estagadir.forum.dao;
+package ma.estagadir.forum.dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

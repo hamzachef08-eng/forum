@@ -1,4 +1,4 @@
-﻿package ma.estagadir.forum.util;
+package ma.estagadir.forum.util;
 
 public final class HtmlUtil {
     private HtmlUtil() {

@@ -1,4 +1,4 @@
-﻿package ma.estagadir.forum.dao;
+package ma.estagadir.forum.dao;
 
 import java.security.SecureRandom;
 import java.sql.Connection;

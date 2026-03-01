@@ -1,4 +1,4 @@
-﻿package ma.estagadir.forum.web;
+package ma.estagadir.forum.web;
 
 public final class SessionKeys {
     public static final String CURRENT_USER_ID = "currentUserId";
