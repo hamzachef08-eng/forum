@@ -96,6 +96,10 @@ public class RegisterServlet extends HttpServlet {
                 resp.sendRedirect(req.getContextPath() + "/verify-email?email=" + encoded + "&smtp=1");
             }
         } catch (SQLException e) {
+            if (isDuplicateEmail(e)) {
+                handleDuplicateEmail(req, resp, email);
+                return;
+            }
             throw new ServletException("Unable to register user", e);
         }
     }
@@ -107,5 +111,56 @@ public class RegisterServlet extends HttpServlet {
 
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
+    }
+
+    private void handleDuplicateEmail(HttpServletRequest req, HttpServletResponse resp, String rawEmail)
+            throws IOException, ServletException {
+        String normalizedEmail = rawEmail == null ? null : rawEmail.trim().toLowerCase();
+        if (isBlank(normalizedEmail)) {
+            req.setAttribute("error", I18n.t(req, "err.email_exists"));
+            refillLists(req);
+            req.getRequestDispatcher("/WEB-INF/views/register.jsp").forward(req, resp);
+            return;
+        }
+
+        try {
+            User existing = userDao.findByEmail(normalizedEmail);
+            if (existing != null && !existing.isEmailVerified()) {
+                try {
+                    VerifyEmailServlet.createAndSendVerification(req, existing.getId(), existing.getEmail());
+                    String encoded = URLEncoder.encode(existing.getEmail(), StandardCharsets.UTF_8);
+                    resp.sendRedirect(req.getContextPath() + "/verify-email?email=" + encoded + "&sent=1");
+                } catch (MessagingException ex) {
+                    String encoded = URLEncoder.encode(existing.getEmail(), StandardCharsets.UTF_8);
+                    resp.sendRedirect(req.getContextPath() + "/verify-email?email=" + encoded + "&smtp=1");
+                }
+                return;
+            }
+        } catch (SQLException ignored) {
+            // Fall through to generic user-facing message.
+        }
+
+        req.setAttribute("error", I18n.t(req, "err.email_exists"));
+        refillLists(req);
+        req.getRequestDispatcher("/WEB-INF/views/register.jsp").forward(req, resp);
+    }
+
+    private boolean isDuplicateEmail(SQLException e) {
+        SQLException cur = e;
+        while (cur != null) {
+            String sqlState = cur.getSQLState();
+            String msg = cur.getMessage();
+            if ("23505".equals(sqlState)) {
+                return true;
+            }
+            if (msg != null) {
+                String low = msg.toLowerCase();
+                if (low.contains("uq_users_email") || low.contains("duplicate key") || low.contains("duplicate entry")) {
+                    return true;
+                }
+            }
+            cur = cur.getNextException();
+        }
+        return false;
     }
 }
