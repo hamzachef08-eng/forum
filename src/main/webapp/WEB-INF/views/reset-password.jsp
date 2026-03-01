@@ -74,6 +74,7 @@
 <script>
   (function () {
     const boxes = Array.from(document.querySelectorAll('.otp-box'));
+    const resetForm = document.getElementById('resetForm');
     const fullCode = document.getElementById('fullCode');
     const otpRow = document.querySelector('.otp-row-reset');
     const emailField = document.getElementById('emailField');
@@ -173,6 +174,15 @@
     });
 
     emailField.addEventListener('input', queueVerify);
+    resetForm.addEventListener('submit', function (e) {
+      const code = boxes.map(b => b.value).join('');
+      fullCode.value = code;
+      if (!/^\d{6}$/.test(code)) {
+        verifyStatus.textContent = txtBad;
+        focusFirstEmpty();
+        e.preventDefault();
+      }
+    });
     focusFirstEmpty();
     queueVerify();
   })();

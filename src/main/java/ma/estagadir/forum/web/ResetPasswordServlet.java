@@ -30,8 +30,14 @@ public class ResetPasswordServlet extends HttpServlet {
         String newPassword = req.getParameter("newPassword");
         String confirmPassword = req.getParameter("confirmPassword");
 
-        if (isBlank(email) || isBlank(code) || isBlank(newPassword) || isBlank(confirmPassword)) {
+        if (isBlank(email) || isBlank(newPassword) || isBlank(confirmPassword)) {
             req.setAttribute("error", I18n.t(req, "err.all_fields_required"));
+            req.getRequestDispatcher("/WEB-INF/views/reset-password.jsp").forward(req, resp);
+            return;
+        }
+
+        if (isBlank(code) || !code.trim().matches("\\d{6}")) {
+            req.setAttribute("error", I18n.t(req, "err.code_6_digits"));
             req.getRequestDispatcher("/WEB-INF/views/reset-password.jsp").forward(req, resp);
             return;
         }
@@ -45,12 +51,6 @@ public class ResetPasswordServlet extends HttpServlet {
 
         if (!newPassword.equals(confirmPassword)) {
             req.setAttribute("error", I18n.t(req, "err.password_mismatch"));
-            req.getRequestDispatcher("/WEB-INF/views/reset-password.jsp").forward(req, resp);
-            return;
-        }
-
-        if (!code.trim().matches("\\d{6}")) {
-            req.setAttribute("error", I18n.t(req, "err.code_6_digits"));
             req.getRequestDispatcher("/WEB-INF/views/reset-password.jsp").forward(req, resp);
             return;
         }
