@@ -52,12 +52,12 @@
         <input type="hidden" name="code" id="fullCode" required />
         <p class="meta reset-status" id="verifyStatus"></p>
 
-        <div id="passwordBlock" class="password-slide show">
+        <div id="passwordBlock" class="password-slide">
           <label><%= I18n.t(request, "reset.new_password") %></label>
-          <input class="input" type="password" name="newPassword" id="newPassword" required />
+          <input class="input" type="password" name="newPassword" id="newPassword" />
 
           <label><%= I18n.t(request, "reset.confirm_password") %></label>
-          <input class="input" type="password" name="confirmPassword" id="confirmPassword" required />
+          <input class="input" type="password" name="confirmPassword" id="confirmPassword" />
 
           <button type="submit" class="btn btn-primary btn-block"><%= I18n.t(request, "reset.submit") %></button>
         </div>
@@ -79,6 +79,9 @@
     const otpRow = document.querySelector('.otp-row-reset');
     const emailField = document.getElementById('emailField');
     const verifyStatus = document.getElementById('verifyStatus');
+    const passwordBlock = document.getElementById('passwordBlock');
+    const newPassword = document.getElementById('newPassword');
+    const confirmPassword = document.getElementById('confirmPassword');
 
     const txtVerifying = '<%= I18n.t(request, "reset.verifying") %>';
     const txtOk = '<%= I18n.t(request, "reset.code_ok") %>';
@@ -87,6 +90,25 @@
     const txtGmailRule = '<%= I18n.t(request, "reset.gmail_rule") %>';
 
     let verifyTimer = null;
+    let codeVerified = false;
+
+    function setPasswordVisible(visible) {
+      if (visible) {
+        passwordBlock.classList.add('show');
+        newPassword.required = true;
+        confirmPassword.required = true;
+      } else {
+        passwordBlock.classList.remove('show');
+        newPassword.required = false;
+        confirmPassword.required = false;
+      }
+    }
+
+    function setVerifiedState(verified, message) {
+      codeVerified = verified;
+      setPasswordVisible(verified);
+      verifyStatus.textContent = message || '';
+    }
 
     async function verifyCodeWithServer(email, code) {
       const params = new URLSearchParams({ email, code });
@@ -101,10 +123,10 @@
       const code = boxes.map(b => b.value).join('');
       fullCode.value = code;
       const email = (emailField.value || '').trim().toLowerCase();
-      verifyStatus.textContent = '';
+      setVerifiedState(false, '');
 
       if (!/^[^\s@]+@gmail\.com$/.test(email)) {
-        verifyStatus.textContent = txtGmailRule;
+        setVerifiedState(false, txtGmailRule);
         return;
       }
 
@@ -118,12 +140,12 @@
         try {
           const valid = await verifyCodeWithServer(email, code);
           if (valid) {
-            verifyStatus.textContent = txtOk;
+            setVerifiedState(true, txtOk);
           } else {
-            verifyStatus.textContent = txtBad;
+            setVerifiedState(false, txtBad);
           }
         } catch (e) {
-          verifyStatus.textContent = txtFail;
+          setVerifiedState(false, txtFail);
         }
       }, 200);
     }
@@ -135,7 +157,16 @@
 
     boxes.forEach((box, index) => {
       box.addEventListener('input', function () {
-        this.value = (this.value || '').replace(/\D/g, '').slice(0, 1);
+        const onlyDigits = (this.value || '').replace(/\D/g, '');
+        if (onlyDigits.length > 1) {
+          onlyDigits.slice(0, 6).split('').forEach((ch, i) => {
+            if (boxes[i]) boxes[i].value = ch;
+          });
+          boxes[Math.min(onlyDigits.length, boxes.length - 1)].focus();
+          queueVerify();
+          return;
+        }
+        this.value = onlyDigits.slice(0, 1);
         if (this.value && index < boxes.length - 1) {
           boxes[index + 1].focus();
         }
@@ -177,8 +208,8 @@
     resetForm.addEventListener('submit', function (e) {
       const code = boxes.map(b => b.value).join('');
       fullCode.value = code;
-      if (!/^\d{6}$/.test(code)) {
-        verifyStatus.textContent = txtBad;
+      if (!/^\d{6}$/.test(code) || !codeVerified) {
+        setVerifiedState(false, txtBad);
         focusFirstEmpty();
         e.preventDefault();
       }
