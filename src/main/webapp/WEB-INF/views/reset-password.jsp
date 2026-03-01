@@ -5,55 +5,69 @@
 <head>
 <meta charset="UTF-8" />
 <title><%= I18n.t(request, "reset.title") %></title>
-<link rel="stylesheet" href="<%=request.getContextPath()%>/assets/style.css" />
+<link rel="stylesheet" href="<%=request.getContextPath()%>/assets/style.css?v=20260301-2" />
 </head>
 <body class="app-bg">
-<div class="container page-medium">
-  <div class="card">
-    <h2><%= I18n.t(request, "reset.title") %></h2>
-    <p class="meta"><%= I18n.t(request, "reset.hint") %></p>
+<div class="container page-wide">
+  <div class="reset-layout">
+    <aside class="card reset-side">
+      <p class="eyebrow">SECURE</p>
+      <h3><%= I18n.t(request, "reset.title") %></h3>
+      <p class="meta"><%= I18n.t(request, "reset.hint") %></p>
+      <ol class="reset-steps">
+        <li><strong>1.</strong> <%= I18n.t(request, "forgot.gmail") %></li>
+        <li><strong>2.</strong> <%= I18n.t(request, "reset.code_label") %></li>
+        <li><strong>3.</strong> <%= I18n.t(request, "reset.new_password") %></li>
+      </ol>
+      <p class="meta"><a href="<%=request.getContextPath()%>/login"><%= I18n.t(request, "forgot.back_login") %></a></p>
+    </aside>
 
-    <% if (request.getParameter("sent") != null) { %>
-      <div class="alert-success"><%= I18n.t(request, "reset.code_sent") %></div>
-    <% } %>
-    <% if (request.getParameter("wait") != null) { %>
-      <div class="alert-error"><%= I18n.t(request, "reset.wait", request.getParameter("wait")) %></div>
-    <% } %>
-    <% if (request.getAttribute("error") != null) { %>
-      <div class="alert-error"><%= request.getAttribute("error") %></div>
-    <% } %>
+    <section class="card reset-main">
+      <h2><%= I18n.t(request, "reset.title") %></h2>
+      <p class="meta"><%= I18n.t(request, "reset.hint") %></p>
 
-    <form method="post" action="<%=request.getContextPath()%>/reset-password" class="stack-md" id="resetForm">
-      <label><%= I18n.t(request, "forgot.gmail") %></label>
-      <input class="input" type="email" name="email" id="emailField" pattern="^[^\s@]+@gmail\.com$" value="<%= request.getParameter("email") == null ? "" : request.getParameter("email") %>" required />
+      <% if (request.getParameter("sent") != null) { %>
+        <div class="alert-success"><%= I18n.t(request, "reset.code_sent") %></div>
+      <% } %>
+      <% if (request.getParameter("wait") != null) { %>
+        <div class="alert-error"><%= I18n.t(request, "reset.wait", request.getParameter("wait")) %></div>
+      <% } %>
+      <% if (request.getAttribute("error") != null) { %>
+        <div class="alert-error"><%= request.getAttribute("error") %></div>
+      <% } %>
 
-      <label><%= I18n.t(request, "reset.code_label") %></label>
-      <div class="otp-row">
-        <input type="text" inputmode="numeric" maxlength="1" class="otp-box" />
-        <input type="text" inputmode="numeric" maxlength="1" class="otp-box" />
-        <input type="text" inputmode="numeric" maxlength="1" class="otp-box" />
-        <input type="text" inputmode="numeric" maxlength="1" class="otp-box" />
-        <input type="text" inputmode="numeric" maxlength="1" class="otp-box" />
-        <input type="text" inputmode="numeric" maxlength="1" class="otp-box" />
-      </div>
-      <input type="hidden" name="code" id="fullCode" required />
-      <p class="meta" id="verifyStatus"></p>
+      <form method="post" action="<%=request.getContextPath()%>/reset-password" class="stack-md" id="resetForm">
+        <label><%= I18n.t(request, "forgot.gmail") %></label>
+        <input class="input" type="email" name="email" id="emailField" pattern="^[^\s@]+@gmail\.com$" value="<%= request.getParameter("email") == null ? "" : request.getParameter("email") %>" required />
 
-      <div id="passwordBlock" class="password-slide">
-        <label><%= I18n.t(request, "reset.new_password") %></label>
-        <input class="input" type="password" name="newPassword" id="newPassword" />
+        <label><%= I18n.t(request, "reset.code_label") %></label>
+        <div class="otp-row otp-row-reset">
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-box" />
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-box" />
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-box" />
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-box" />
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-box" />
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-box" />
+        </div>
+        <input type="hidden" name="code" id="fullCode" required />
+        <p class="meta reset-status" id="verifyStatus"></p>
 
-        <label><%= I18n.t(request, "reset.confirm_password") %></label>
-        <input class="input" type="password" name="confirmPassword" id="confirmPassword" />
+        <div id="passwordBlock" class="password-slide">
+          <label><%= I18n.t(request, "reset.new_password") %></label>
+          <input class="input" type="password" name="newPassword" id="newPassword" />
 
-        <button type="submit" class="btn btn-primary"><%= I18n.t(request, "reset.submit") %></button>
-      </div>
-    </form>
+          <label><%= I18n.t(request, "reset.confirm_password") %></label>
+          <input class="input" type="password" name="confirmPassword" id="confirmPassword" />
 
-    <form method="post" action="<%=request.getContextPath()%>/forgot-password" class="stack-md top-gap">
-      <input type="hidden" name="email" value="<%= request.getParameter("email") == null ? "" : request.getParameter("email") %>" />
-      <button type="submit" class="btn btn-ghost"><%= I18n.t(request, "reset.resend") %></button>
-    </form>
+          <button type="submit" class="btn btn-primary btn-block"><%= I18n.t(request, "reset.submit") %></button>
+        </div>
+      </form>
+
+      <form method="post" action="<%=request.getContextPath()%>/forgot-password" class="stack-md top-gap">
+        <input type="hidden" name="email" value="<%= request.getParameter("email") == null ? "" : request.getParameter("email") %>" />
+        <button type="submit" class="btn btn-ghost"><%= I18n.t(request, "reset.resend") %></button>
+      </form>
+    </section>
   </div>
 </div>
 
