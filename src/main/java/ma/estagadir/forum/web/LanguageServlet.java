@@ -39,7 +39,8 @@ public class LanguageServlet extends HttpServlet {
         }
 
         // Allow only known public routes.
-        if (value.startsWith("/login")
+        if ("/".equals(value)
+                || value.startsWith("/login")
                 || value.startsWith("/dashboard")
                 || value.startsWith("/register")
                 || value.startsWith("/forgot-password")

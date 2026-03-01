@@ -52,7 +52,23 @@ public class RegisterServlet extends HttpServlet {
         }
 
         try {
-            if (userDao.emailExists(email.trim())) {
+            String normalizedEmail = email.trim().toLowerCase();
+            User existing = userDao.findByEmail(normalizedEmail);
+            if (existing != null) {
+                if (!existing.isEmailVerified()) {
+                    try {
+                        VerifyEmailServlet.createAndSendVerification(req, existing.getId(), existing.getEmail());
+                    } catch (MessagingException ex) {
+                        req.setAttribute("error", I18n.t(req, "err.verify_not_sent"));
+                        refillLists(req);
+                        req.getRequestDispatcher("/WEB-INF/views/register.jsp").forward(req, resp);
+                        return;
+                    }
+                    String encoded = URLEncoder.encode(existing.getEmail(), StandardCharsets.UTF_8);
+                    resp.sendRedirect(req.getContextPath() + "/verify-email?email=" + encoded + "&sent=1");
+                    return;
+                }
+
                 req.setAttribute("error", I18n.t(req, "err.email_exists"));
                 refillLists(req);
                 req.getRequestDispatcher("/WEB-INF/views/register.jsp").forward(req, resp);
@@ -62,7 +78,7 @@ public class RegisterServlet extends HttpServlet {
             User user = new User();
             user.setNom(nom.trim());
             user.setPrenom(prenom.trim());
-            user.setEmail(email.trim().toLowerCase());
+            user.setEmail(normalizedEmail);
             user.setPasswordHash(PasswordUtil.hash(password));
             user.setFiliere(filiere);
             user.setSemestre(semestre);
