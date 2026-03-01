@@ -42,7 +42,7 @@
 
         <label><%= I18n.t(request, "reset.code_label") %></label>
         <div class="otp-row otp-row-reset">
-          <input type="text" inputmode="numeric" maxlength="1" class="otp-box" />
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-box" autocomplete="one-time-code" autofocus />
           <input type="text" inputmode="numeric" maxlength="1" class="otp-box" />
           <input type="text" inputmode="numeric" maxlength="1" class="otp-box" />
           <input type="text" inputmode="numeric" maxlength="1" class="otp-box" />
@@ -52,12 +52,12 @@
         <input type="hidden" name="code" id="fullCode" required />
         <p class="meta reset-status" id="verifyStatus"></p>
 
-        <div id="passwordBlock" class="password-slide">
+        <div id="passwordBlock" class="password-slide show">
           <label><%= I18n.t(request, "reset.new_password") %></label>
-          <input class="input" type="password" name="newPassword" id="newPassword" />
+          <input class="input" type="password" name="newPassword" id="newPassword" required />
 
           <label><%= I18n.t(request, "reset.confirm_password") %></label>
-          <input class="input" type="password" name="confirmPassword" id="confirmPassword" />
+          <input class="input" type="password" name="confirmPassword" id="confirmPassword" required />
 
           <button type="submit" class="btn btn-primary btn-block"><%= I18n.t(request, "reset.submit") %></button>
         </div>
@@ -75,9 +75,7 @@
   (function () {
     const boxes = Array.from(document.querySelectorAll('.otp-box'));
     const fullCode = document.getElementById('fullCode');
-    const passwordBlock = document.getElementById('passwordBlock');
-    const newPassword = document.getElementById('newPassword');
-    const confirmPassword = document.getElementById('confirmPassword');
+    const otpRow = document.querySelector('.otp-row-reset');
     const emailField = document.getElementById('emailField');
     const verifyStatus = document.getElementById('verifyStatus');
 
@@ -88,18 +86,6 @@
     const txtGmailRule = '<%= I18n.t(request, "reset.gmail_rule") %>';
 
     let verifyTimer = null;
-
-    function setPasswordVisible(visible) {
-      if (visible) {
-        passwordBlock.classList.add('show');
-        newPassword.required = true;
-        confirmPassword.required = true;
-      } else {
-        passwordBlock.classList.remove('show');
-        newPassword.required = false;
-        confirmPassword.required = false;
-      }
-    }
 
     async function verifyCodeWithServer(email, code) {
       const params = new URLSearchParams({ email, code });
@@ -114,8 +100,6 @@
       const code = boxes.map(b => b.value).join('');
       fullCode.value = code;
       const email = (emailField.value || '').trim().toLowerCase();
-
-      setPasswordVisible(false);
       verifyStatus.textContent = '';
 
       if (!/^[^\s@]+@gmail\.com$/.test(email)) {
@@ -134,16 +118,18 @@
           const valid = await verifyCodeWithServer(email, code);
           if (valid) {
             verifyStatus.textContent = txtOk;
-            setPasswordVisible(true);
           } else {
             verifyStatus.textContent = txtBad;
-            setPasswordVisible(false);
           }
         } catch (e) {
           verifyStatus.textContent = txtFail;
-          setPasswordVisible(false);
         }
       }, 200);
+    }
+
+    function focusFirstEmpty() {
+      const empty = boxes.find(b => !b.value);
+      (empty || boxes[boxes.length - 1]).focus();
     }
 
     boxes.forEach((box, index) => {
@@ -156,6 +142,15 @@
       });
 
       box.addEventListener('keydown', function (e) {
+        if (/^\d$/.test(e.key)) {
+          this.value = e.key;
+          if (index < boxes.length - 1) {
+            boxes[index + 1].focus();
+          }
+          queueVerify();
+          e.preventDefault();
+          return;
+        }
         if (e.key === 'Backspace' && !this.value && index > 0) {
           boxes[index - 1].focus();
         }
@@ -173,7 +168,12 @@
       });
     });
 
+    otpRow.addEventListener('click', function () {
+      focusFirstEmpty();
+    });
+
     emailField.addEventListener('input', queueVerify);
+    focusFirstEmpty();
     queueVerify();
   })();
 </script>
