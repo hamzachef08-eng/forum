@@ -92,9 +92,8 @@ public class RegisterServlet extends HttpServlet {
                 String encoded = URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8);
                 resp.sendRedirect(req.getContextPath() + "/verify-email?email=" + encoded + "&sent=1");
             } catch (MessagingException ex) {
-                req.setAttribute("error", I18n.t(req, "err.verify_not_sent"));
-                refillLists(req);
-                req.getRequestDispatcher("/WEB-INF/views/register.jsp").forward(req, resp);
+                String encoded = URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8);
+                resp.sendRedirect(req.getContextPath() + "/verify-email?email=" + encoded + "&smtp=1");
             }
         } catch (SQLException e) {
             throw new ServletException("Unable to register user", e);
