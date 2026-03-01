@@ -1,5 +1,15 @@
 ﻿<%@ page import="ma.estagadir.forum.util.I18n" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%!
+  private String js(String value) {
+    if (value == null) return "";
+    return value.replace("\\", "\\\\")
+                .replace("'", "\\'")
+                .replace("\"", "\\\"")
+                .replace("\r", "")
+                .replace("\n", "\\n");
+  }
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -41,7 +51,7 @@
         <input class="input" type="email" name="email" id="emailField" pattern="^[^\s@]+@gmail\.com$" value="<%= request.getParameter("email") == null ? "" : request.getParameter("email") %>" required />
 
         <label><%= I18n.t(request, "reset.code_label") %></label>
-        <input class="input" type="text" name="code" id="codeField" inputmode="numeric" pattern="\\d{6}" maxlength="6" autocomplete="one-time-code" required />
+        <input class="input" type="text" name="code" id="codeField" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required />
         <p class="meta reset-status" id="verifyStatus"></p>
 
         <div id="passwordBlock" class="password-slide">
@@ -73,11 +83,11 @@
     const newPassword = document.getElementById('newPassword');
     const confirmPassword = document.getElementById('confirmPassword');
 
-    const txtVerifying = '<%= I18n.t(request, "reset.verifying") %>';
-    const txtOk = '<%= I18n.t(request, "reset.code_ok") %>';
-    const txtBad = '<%= I18n.t(request, "reset.code_bad") %>';
-    const txtFail = '<%= I18n.t(request, "reset.verify_fail") %>';
-    const txtGmailRule = '<%= I18n.t(request, "reset.gmail_rule") %>';
+    const txtVerifying = '<%= js(I18n.t(request, "reset.verifying")) %>';
+    const txtOk = '<%= js(I18n.t(request, "reset.code_ok")) %>';
+    const txtBad = '<%= js(I18n.t(request, "reset.code_bad")) %>';
+    const txtFail = '<%= js(I18n.t(request, "reset.verify_fail")) %>';
+    const txtGmailRule = '<%= js(I18n.t(request, "reset.gmail_rule")) %>';
 
     let verifyTimer = null;
     let codeVerified = false;
