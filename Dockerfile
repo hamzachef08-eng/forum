@@ -1,6 +1,7 @@
 FROM tomcat:11.0-jdk21-temurin
 
 RUN rm -rf /usr/local/tomcat/webapps/*
+RUN sed -i 's/<Server port="8005"/<Server port="-1"/' /usr/local/tomcat/conf/server.xml
 
 # Exploded WAR layout from Eclipse project (serve as ROOT)
 COPY src/main/webapp/ /usr/local/tomcat/webapps/ROOT/
