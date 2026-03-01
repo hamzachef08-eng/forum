@@ -41,15 +41,7 @@
         <input class="input" type="email" name="email" id="emailField" pattern="^[^\s@]+@gmail\.com$" value="<%= request.getParameter("email") == null ? "" : request.getParameter("email") %>" required />
 
         <label><%= I18n.t(request, "reset.code_label") %></label>
-        <div class="otp-row otp-row-reset">
-          <input type="text" inputmode="numeric" maxlength="1" class="otp-box" autocomplete="one-time-code" autofocus />
-          <input type="text" inputmode="numeric" maxlength="1" class="otp-box" />
-          <input type="text" inputmode="numeric" maxlength="1" class="otp-box" />
-          <input type="text" inputmode="numeric" maxlength="1" class="otp-box" />
-          <input type="text" inputmode="numeric" maxlength="1" class="otp-box" />
-          <input type="text" inputmode="numeric" maxlength="1" class="otp-box" />
-        </div>
-        <input type="hidden" name="code" id="fullCode" required />
+        <input class="input" type="text" name="code" id="codeField" inputmode="numeric" pattern="\\d{6}" maxlength="6" autocomplete="one-time-code" required />
         <p class="meta reset-status" id="verifyStatus"></p>
 
         <div id="passwordBlock" class="password-slide">
@@ -73,10 +65,8 @@
 
 <script>
   (function () {
-    const boxes = Array.from(document.querySelectorAll('.otp-box'));
     const resetForm = document.getElementById('resetForm');
-    const fullCode = document.getElementById('fullCode');
-    const otpRow = document.querySelector('.otp-row-reset');
+    const codeField = document.getElementById('codeField');
     const emailField = document.getElementById('emailField');
     const verifyStatus = document.getElementById('verifyStatus');
     const passwordBlock = document.getElementById('passwordBlock');
@@ -120,8 +110,8 @@
     }
 
     function queueVerify() {
-      const code = boxes.map(b => b.value).join('');
-      fullCode.value = code;
+      const code = (codeField.value || '').replace(/\D/g, '').slice(0, 6);
+      codeField.value = code;
       const email = (emailField.value || '').trim().toLowerCase();
       setVerifiedState(false, '');
 
@@ -150,71 +140,18 @@
       }, 200);
     }
 
-    function focusFirstEmpty() {
-      const empty = boxes.find(b => !b.value);
-      (empty || boxes[boxes.length - 1]).focus();
-    }
-
-    boxes.forEach((box, index) => {
-      box.addEventListener('input', function () {
-        const onlyDigits = (this.value || '').replace(/\D/g, '');
-        if (onlyDigits.length > 1) {
-          onlyDigits.slice(0, 6).split('').forEach((ch, i) => {
-            if (boxes[i]) boxes[i].value = ch;
-          });
-          boxes[Math.min(onlyDigits.length, boxes.length - 1)].focus();
-          queueVerify();
-          return;
-        }
-        this.value = onlyDigits.slice(0, 1);
-        if (this.value && index < boxes.length - 1) {
-          boxes[index + 1].focus();
-        }
-        queueVerify();
-      });
-
-      box.addEventListener('keydown', function (e) {
-        if (/^\d$/.test(e.key)) {
-          this.value = e.key;
-          if (index < boxes.length - 1) {
-            boxes[index + 1].focus();
-          }
-          queueVerify();
-          e.preventDefault();
-          return;
-        }
-        if (e.key === 'Backspace' && !this.value && index > 0) {
-          boxes[index - 1].focus();
-        }
-      });
-
-      box.addEventListener('paste', function (e) {
-        e.preventDefault();
-        const pasted = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6);
-        if (!pasted) return;
-        pasted.split('').forEach((ch, i) => {
-          if (boxes[i]) boxes[i].value = ch;
-        });
-        boxes[Math.min(pasted.length, boxes.length - 1)].focus();
-        queueVerify();
-      });
-    });
-
-    otpRow.addEventListener('click', function () {
-      focusFirstEmpty();
-    });
-
+    codeField.addEventListener('input', queueVerify);
     emailField.addEventListener('input', queueVerify);
     resetForm.addEventListener('submit', function (e) {
-      const code = boxes.map(b => b.value).join('');
-      fullCode.value = code;
+      const code = (codeField.value || '').replace(/\D/g, '').slice(0, 6);
+      codeField.value = code;
       if (!/^\d{6}$/.test(code) || !codeVerified) {
         setVerifiedState(false, txtBad);
-        focusFirstEmpty();
+        codeField.focus();
         e.preventDefault();
       }
     });
-    focusFirstEmpty();
+    codeField.focus();
     queueVerify();
   })();
 </script>
