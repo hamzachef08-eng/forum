@@ -61,7 +61,7 @@ public class UserDao {
             stmt.setString(5, user.getFiliere());
             stmt.setString(6, user.getSemestre());
             stmt.setString(7, user.getRole().name());
-            stmt.setBoolean(8, user.isEmailVerified());
+            stmt.setInt(8, user.isEmailVerified() ? 1 : 0);
             stmt.executeUpdate();
 
             try (ResultSet rs = stmt.getGeneratedKeys()) {
